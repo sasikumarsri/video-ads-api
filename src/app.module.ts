@@ -29,7 +29,7 @@ import { CampaignsModule } from './campaigns/campaigns.module';
       port: +process.env.DB_PORT || 3306, // DB Port
       username: process.env.DB_USERNAME || 'root', // DB Username
       password: process.env.DB_PASSWORD || '', // DB Password
-      database: process.env.DB_NAME || 'video_ads', // Database name
+      database: process.env.DB_NAME || 'defaultdb', // Database name
       entities: [User, Session, Video, TVDevice, Log, AdminAction, Campaigns],
       synchronize: false, // Auto sync schema (don't use in production)
       logging: true, // Enable logging
