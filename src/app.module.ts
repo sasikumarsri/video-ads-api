@@ -31,7 +31,7 @@ import { CampaignsModule } from './campaigns/campaigns.module';
       password: process.env.DB_PASSWORD || '', // DB Password
       database: process.env.DB_NAME || 'defaultdb', // Database name
       entities: [User, Session, Video, TVDevice, Log, AdminAction, Campaigns],
-      synchronize: true, // Auto sync schema (don't use in production)
+      synchronize: false, // Auto sync schema (don't use in production)
       logging: true, // Enable logging
     }),
 
