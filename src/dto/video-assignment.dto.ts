@@ -1,15 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TVDevice } from 'src/entities/tv-device.entity';
 import { Video } from 'src/entities/video.entity';
-import {
-  IsString,
-  IsInt,
-  IsNotEmpty,
-  MaxLength,
-  IsEnum,
-  IsOptional,
-  IsUrl,
-} from 'class-validator';
 
 export class CreateVideoAssignmentDto {
   @ApiProperty({
