@@ -16,25 +16,18 @@ export class CreateVideoAssignmentDto {
     example: [1, 2],
     description: 'The ID of the video to assign',
   })
-  @IsInt()
-  @IsNotEmpty()
   videoIds: number[] = [1, 2]; // Default videoIds if not provided
 
   @ApiProperty({
     example: 'Campaign 1',
     description: 'The name of the campaign',
   })
-  @IsString()
-  @MaxLength(255)
-  @IsNotEmpty()
   campaignName: string = 'Campaign 1'; // Default campaign name if not provided
 
   @ApiProperty({
     example: 1,
     description: 'The ID of the user creating the assignment',
   })
-  @IsInt()
-  @IsNotEmpty()
   userId: number;
 
   @ApiProperty({
@@ -45,17 +38,12 @@ export class CreateVideoAssignmentDto {
     example: 'landscape',
     description: 'The type of asset (landscape or portrait)',
   })
-  @IsEnum(['landscape', 'portrait'])
-  @IsNotEmpty()
   assetType: 'landscape' | 'portrait' = 'landscape'; // Default asset type
 
   @ApiProperty({
     example: 'https://example.com/asset.mp4',
     description: 'The URL of the assigned asset',
   })
-  @IsUrl()
-  @MaxLength(2083)
-  @IsOptional()
   assignedAssetUrl?: string = ''; // Default URL if not provided
 }
 
