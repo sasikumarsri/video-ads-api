@@ -6,7 +6,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: ['http://3.149.246.221:5000', 'http://localhost:5000'], // Frontend URL (e.g., your React app)
-    methods: 'GET,POST,PUT,DELETE','OPTIONS', // Allowed methods
+    methods: 'GET,POST,PUT,DELETE,OPTIONS', // Allowed methods
     credentials: true, // Allow cookies or other credentials if needed
   });
 
