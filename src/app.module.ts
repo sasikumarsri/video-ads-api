@@ -26,12 +26,12 @@ import { CampaignsModule } from './campaigns/campaigns.module';
     TypeOrmModule.forRoot({
       type: 'mysql', // Database type
       host: process.env.DB_HOST || '127.0.0.1', // DB Host
-      port: +process.env.DB_PORT || 3306, // DB Port
+      port: process.env.DB_PORT || 3306, // DB Port
       username: process.env.DB_USERNAME || 'root', // DB Username
       password: process.env.DB_PASSWORD || '', // DB Password
       database: process.env.DB_NAME || 'defaultdb', // Database name
       entities: [User, Session, Video, TVDevice, Log, AdminAction, Campaigns],
-      synchronize: false, // Auto sync schema (don't use in production)
+      synchronize: true, // Auto sync schema (don't use in production)
       logging: true, // Enable logging
     }),
 
