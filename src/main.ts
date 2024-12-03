@@ -1,9 +1,11 @@
-import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
-
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    origin: ['http://your-frontend-domain-or-ip:port', 'http://localhost:5173'], // Frontend URL (e.g., your React app)
+    methods: 'GET,POST,PUT,DELETE', // Allowed methods
+    credentials: true, // Allow cookies or other credentials if needed
+  });
 
   // Swagger configuration
   const config = new DocumentBuilder()
@@ -16,7 +18,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   // Start the application
-  const port = process.env.PORT || 3000
+  const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
   console.log(`Application is running on: http://localhost:${port}`);
   console.log(`Swagger docs available at: http://localhost:${port}/api`);
