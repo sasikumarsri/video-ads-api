@@ -222,7 +222,28 @@ export class CampainsService {
       throw new NotFoundException(`Campaign with ID ${id} not found`);
     }
     
-
-    return await this.videoAssignmentRepository.remove(campaign); // Delete the campaign
+    const res = await this.videoAssignmentRepository.remove(campaign); // Delete the campaign
+    return {res, message: 'success'}
   }
+
+  async deleteCampaignsByDeviceId(deviceId: number): Promise<{ message: string; deletedCount: number }> {
+    // Find all campaigns associated with the given device ID
+    const campaigns = await this.videoAssignmentRepository.find({
+      where: { device: { id: deviceId } },
+      relations: ['device'],
+    });
+  
+    if (!campaigns.length) {
+      throw new NotFoundException(`No campaigns found for device ID ${deviceId}`);
+    }
+  
+    // Remove all the campaigns associated with the device
+    await this.videoAssignmentRepository.remove(campaigns);
+  
+    return {
+      message: 'All campaigns associated with the device have been successfully deleted',
+      deletedCount: campaigns.length,
+    };
+  }
+  
 }

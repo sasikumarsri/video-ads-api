@@ -7,8 +7,9 @@ import {
   HttpCode,
   HttpStatus,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { CampainsService } from './campaigns.service';
 import {
   CreateVideoAssignmentDto,
@@ -102,5 +103,40 @@ export class CampaignsController {
   @ApiResponse({ status: 404, description: 'Campaign not found' })
   async deleteCampaign(@Param('id') id: number): Promise<void> {
     await this.CampainsService.deleteCampaign(id);
+  }
+
+  @Delete('device/:deviceId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete all campaigns by Device ID' })
+  @ApiParam({
+    name: 'deviceId',
+    type: Number,
+    description: 'The ID of the device whose campaigns should be deleted',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'All campaigns associated with the device have been deleted',
+    schema: {
+      example: {
+        message: 'All campaigns associated with the device have been successfully deleted',
+        deletedCount: 5,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No campaigns found for the specified device ID',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'No campaigns found for device ID {deviceId}',
+        error: 'Not Found',
+      },
+    },
+  })
+  async deleteCampaignsByDeviceId(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<{ message: string; deletedCount: number }> {
+    return this.CampainsService.deleteCampaignsByDeviceId(deviceId);
   }
 }
