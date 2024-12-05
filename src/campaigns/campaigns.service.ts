@@ -213,7 +213,7 @@ export class CampainsService {
     }));
   }
 
-  async deleteCampaign(id: number): Promise<void> {
+  async deleteCampaign(id: number): Promise<any> {
     const campaign = await this.videoAssignmentRepository.findOne({
       where: { id },
     });
@@ -221,7 +221,8 @@ export class CampainsService {
     if (!campaign) {
       throw new NotFoundException(`Campaign with ID ${id} not found`);
     }
+    
 
-    await this.videoAssignmentRepository.remove(campaign); // Delete the campaign
+    return await this.videoAssignmentRepository.remove(campaign); // Delete the campaign
   }
 }

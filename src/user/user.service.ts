@@ -54,42 +54,45 @@ export class UserService {
     if (!isMatch) {
       throw new ForbiddenException('Invalid credentials');
     }
-
-    // Handle device record
-    let device = await this.tvDeviceRepository.findOne({
-      where: { user: { id: user.id }, id: deviceId },
-    });
-
-    if (device) {
-      // Device exists, update the last seen time and mark as online
-      device.last_seen = new Date();
-      device.is_online = true;
-      await this.tvDeviceRepository.save(device);
-    } else {
-      // Device doesn't exist, create a new record
-      const newDevice = this.tvDeviceRepository.create({
-        device_name: 'test device' + new Date().toISOString(),
-        user: { id: user.id }, // Associate the device with the user
-        is_online: true,
-        last_seen: new Date(),
+    
+    const data = {
+      token: '',
+      userName: user.username,
+      id: user.id,
+      role: user.role,
+      deviceId: null,
+    };
+    if(user.role === 'TV') {
+      // Handle device record
+      let device = await this.tvDeviceRepository.findOne({
+        where: { user: { id: user.id }, id: deviceId },
       });
-      device = await this.tvDeviceRepository.save(newDevice);
-    }
 
+      if (device) {
+        // Device exists, update the last seen time and mark as online
+        device.last_seen = new Date();
+        device.is_online = true;
+        await this.tvDeviceRepository.save(device);
+      } else {
+        // Device doesn't exist, create a new record
+        const newDevice = this.tvDeviceRepository.create({
+          device_name: 'test device' + new Date().toISOString(),
+          user: { id: user.id }, // Associate the device with the user
+          is_online: true,
+          last_seen: new Date(),
+        });
+        device = await this.tvDeviceRepository.save(newDevice);
+        data.deviceId = device.id;
+      }
+
+    }
+      
     // Generate JWT token
-    const token = jwt.sign(
+    data.token = jwt.sign(
       { userId: user.id, username: user.username, role: user.role },
       this.jwtSecret,
       { expiresIn: '1h' },
     );
-
-    const data = {
-      token,
-      userName: user.username,
-      id: user.id,
-      role: user.role,
-      deviceId: device.id,
-    };
 
     // Return the token and device ID
     return { message: 'Login successful', data };
