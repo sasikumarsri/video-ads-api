@@ -7,12 +7,14 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { TVDevicesService } from './tv-devices.service';
 import {
   CreateTVDeviceDto,
   TVDeviceResponseDto,
+  UpdateStatusDto,
   UpdateTVDeviceDto,
 } from 'src/dto/tv-devices.dto';
 
@@ -65,4 +67,10 @@ export class TVDevicesController {
   getDeviceByUserId(@Param('id', ParseIntPipe) id: number) {
     return this.tvDevicesService.getDevicesByUserId(id);
   }
+
+  @Patch('update-status')
+  async updateStatus(@Body() updateStatusDto: UpdateStatusDto): Promise<void> {
+    await this.tvDevicesService.updateDeviceStatus(updateStatusDto);
+  }
+
 }

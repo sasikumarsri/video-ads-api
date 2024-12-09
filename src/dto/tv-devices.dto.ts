@@ -59,3 +59,11 @@ export class CreateTVDeviceDto {
   })
   user_id: number;
 }
+
+export class UpdateStatusDto {
+  deviceId: number;
+
+  isOnline: boolean;
+
+  lastSeen: string;
+}

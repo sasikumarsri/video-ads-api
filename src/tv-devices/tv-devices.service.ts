@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TVDevice } from 'src/entities/tv-device.entity';
-import { CreateTVDeviceDto, UpdateTVDeviceDto } from 'src/dto/tv-devices.dto';
+import { CreateTVDeviceDto, UpdateStatusDto, UpdateTVDeviceDto } from 'src/dto/tv-devices.dto';
 
 @Injectable()
 export class TVDevicesService {
@@ -51,5 +51,19 @@ export class TVDevicesService {
       where: { user: { id } },
     });
     return data;
+  }
+
+  async updateDeviceStatus(updateStatusDto: UpdateStatusDto): Promise<void> {
+    const { deviceId, isOnline, lastSeen } = updateStatusDto;
+
+    // Fetch the TVDevice entity
+    const tvDevice = await TVDevice.findOne({ where: { id: deviceId } });
+
+    if (tvDevice) {
+      // Update the entity
+      tvDevice.is_online = isOnline;
+      tvDevice.last_seen = new Date(lastSeen);
+      await tvDevice.save();
+    }
   }
 }
