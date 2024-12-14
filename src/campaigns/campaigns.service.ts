@@ -97,23 +97,65 @@ export class CampainsService {
     return campaigns;
   }
 
+  // async createMultipleAssignments(
+  //   createVideoAssignmentDto: CreateVideoAssignmentDto,
+  // ): Promise<Campaigns[]> {
+  //   const { userId, videoIds, campaignName } = createVideoAssignmentDto;
+
+  //   // Fetch devices associated with the given userId
+  //   const devices = await this.tvDeviceRepository.find({
+  //     where: { user: { id: userId } },
+  //   });
+
+  //   if (!devices.length) {
+  //     throw new NotFoundException(`No devices found for user ID ${userId}`);
+  //   }
+
+  //   // Fetch all video entities based on the provided video IDs
+  //   const videos = await this.videoRepository.findByIds(videoIds);
+
+  //   if (videos.length !== videoIds.length) {
+  //     const missingVideos = videoIds.filter(
+  //       (id) => !videos.some((video) => video.id === id),
+  //     );
+  //     throw new NotFoundException(
+  //       `Videos with IDs ${missingVideos.join(', ')} not found`,
+  //     );
+  //   }
+
+  //   // Create video assignments for the fetched devices
+  //   const videoAssignments = devices.flatMap((device) =>
+  //     videos.map((video) =>
+  //       this.videoAssignmentRepository.create({
+  //         campaignName,
+  //         video,
+  //         device,
+  //         userId, // Include userId explicitly if needed
+  //       }),
+  //     ),
+  //   );
+
+  //   // Save all assignments in a single transaction
+  //   return await this.videoAssignmentRepository.save(videoAssignments);
+  // }
+
   async createMultipleAssignments(
     createVideoAssignmentDto: CreateVideoAssignmentDto,
   ): Promise<Campaigns[]> {
     const { userId, videoIds, campaignName } = createVideoAssignmentDto;
-
+  
     // Fetch devices associated with the given userId
     const devices = await this.tvDeviceRepository.find({
       where: { user: { id: userId } },
     });
-
+  
     if (!devices.length) {
       throw new NotFoundException(`No devices found for user ID ${userId}`);
     }
-
+  
     // Fetch all video entities based on the provided video IDs
     const videos = await this.videoRepository.findByIds(videoIds);
-
+  
     if (videos.length !== videoIds.length) {
       const missingVideos = videoIds.filter(
         (id) => !videos.some((video) => video.id === id),
@@ -122,22 +164,47 @@ export class CampainsService {
         `Videos with IDs ${missingVideos.join(', ')} not found`,
       );
     }
-
-    // Create video assignments for the fetched devices
-    const videoAssignments = devices.flatMap((device) =>
-      videos.map((video) =>
-        this.videoAssignmentRepository.create({
-          campaignName,
-          video,
-          device,
-          userId, // Include userId explicitly if needed
-        }),
-      ),
+  
+    // Check for existing assignments to avoid duplicates
+    const existingAssignments = await this.videoAssignmentRepository.find({
+      where: {
+        device: { id: In(devices.map((device) => device.id)) },
+        video: { id: In(videoIds) },
+      },
+      relations: ['device', 'video'],
+    });
+  
+    // Map of existing assignments by device and video IDs
+    const assignedMap = new Map<string, boolean>();
+    existingAssignments.forEach((assignment) => {
+      const key = `${assignment.device.id}-${assignment.video.id}`;
+      assignedMap.set(key, true);
+    });
+  
+    // Filter out assignments that already exist
+    const newAssignments = devices.flatMap((device) =>
+      videos
+        .filter((video) => !assignedMap.has(`${device.id}-${video.id}`))
+        .map((video) =>
+          this.videoAssignmentRepository.create({
+            campaignName,
+            video,
+            device,
+            userId, // Include userId explicitly if needed
+          }),
+        ),
     );
-
-    // Save all assignments in a single transaction
-    return await this.videoAssignmentRepository.save(videoAssignments);
+  
+    if (!newAssignments.length) {
+      throw new BadRequestException(
+        'All videos are already assigned to the user’s devices.',
+      );
+    }
+  
+    // Save all new assignments in a single transaction
+    return await this.videoAssignmentRepository.save(newAssignments);
   }
+  
 
   async getAllCampaigns(): Promise<Campaigns[]> {
     return this.videoAssignmentRepository.find();
